@@ -6,6 +6,8 @@ import '../data/models/study_session.dart';
 import '../data/models/project_model.dart';
 import '../data/models/note_model.dart';
 import '../data/models/app_stats.dart';
+import '../data/models/practice_model.dart';
+import '../data/models/achievement_model.dart';
 import '../data/services/storage_service.dart';
 import '../data/services/notification_service.dart';
 import '../data/repositories/user_repository.dart';
@@ -13,6 +15,7 @@ import '../data/repositories/roadmap_repository.dart';
 import '../data/repositories/study_session_repository.dart';
 import '../data/repositories/project_repository.dart';
 import '../data/repositories/notes_repository.dart';
+import '../data/repositories/practice_repository.dart';
 
 // Services
 final storageServiceProvider = Provider<StorageService>((ref) {
@@ -42,6 +45,10 @@ final projectRepositoryProvider = Provider<ProjectRepository>((ref) {
 
 final notesRepositoryProvider = Provider<NotesRepository>((ref) {
   return NotesRepository(ref.watch(storageServiceProvider));
+});
+
+final practiceRepositoryProvider = Provider<PracticeRepository>((ref) {
+  return PracticeRepository(ref.watch(storageServiceProvider));
 });
 
 // Theme Mode Notifier
@@ -118,6 +125,11 @@ class CurriculumNotifier extends Notifier<List<Month>> {
     state = ref.read(roadmapRepositoryProvider).getCurriculum();
   }
 
+  Future<void> toggleBookmark(String lessonId, bool isBookmarked) async {
+    await ref.read(roadmapRepositoryProvider).toggleLessonBookmark(lessonId, isBookmarked);
+    state = ref.read(roadmapRepositoryProvider).getCurriculum();
+  }
+
   Future<void> markResourceOpened(String lessonId, String resourceId) async {
     await ref.read(roadmapRepositoryProvider).markResourceOpened(lessonId, resourceId);
     state = ref.read(roadmapRepositoryProvider).getCurriculum();
@@ -130,6 +142,22 @@ class CurriculumNotifier extends Notifier<List<Month>> {
 
 final curriculumProvider =
     NotifierProvider<CurriculumNotifier, List<Month>>(CurriculumNotifier.new);
+
+// Bookmarked Lessons Provider
+final bookmarkedLessonsProvider = Provider<List<Lesson>>((ref) {
+  final curriculum = ref.watch(curriculumProvider);
+  final List<Lesson> bookmarks = [];
+  for (final m in curriculum) {
+    for (final t in m.topics) {
+      for (final l in t.lessons) {
+        if (l.isBookmarked) {
+          bookmarks.add(l);
+        }
+      }
+    }
+  }
+  return bookmarks;
+});
 
 // Current Focus Lesson (first incomplete lesson)
 final currentFocusLessonProvider = Provider<Lesson?>((ref) {
@@ -170,6 +198,12 @@ final todaysPlanProvider = Provider<List<Lesson>>((ref) {
     }
   }
   return plan;
+});
+
+// Today's Study Minutes Provider
+final todayStudyMinutesProvider = Provider<int>((ref) {
+  ref.watch(studySessionsProvider);
+  return ref.watch(studySessionRepositoryProvider).getTodayStudyMinutes();
 });
 
 // Projects Notifier
@@ -321,5 +355,87 @@ final appStatsProvider = Provider<AppStats>((ref) {
     completedProjects: completedProjects,
     totalProjects: projects.length,
     expectedProgress: expectedProgress,
+  );
+});
+
+// Practice Attempts Notifier & Provider
+class PracticeAttemptsNotifier extends Notifier<List<PracticeAttempt>> {
+  @override
+  List<PracticeAttempt> build() {
+    return ref.watch(practiceRepositoryProvider).getAttempts();
+  }
+
+  Future<void> recordAttempt(PracticeAttempt attempt) async {
+    await ref.read(practiceRepositoryProvider).recordAttempt(attempt);
+    state = ref.read(practiceRepositoryProvider).getAttempts();
+  }
+
+  void refresh() {
+    state = ref.read(practiceRepositoryProvider).getAttempts();
+  }
+}
+
+final practiceAttemptsProvider =
+    NotifierProvider<PracticeAttemptsNotifier, List<PracticeAttempt>>(PracticeAttemptsNotifier.new);
+
+final practiceStatsProvider = Provider<PracticeStatsSummary>((ref) {
+  final attempts = ref.watch(practiceAttemptsProvider);
+  return PracticeStatsSummary.fromAttempts(attempts);
+});
+
+// Deterministic User XP Provider
+final userXPProvider = Provider<UserXP>((ref) {
+  final stats = ref.watch(appStatsProvider);
+  final projects = ref.watch(projectsProvider);
+  final practiceStats = ref.watch(practiceStatsProvider);
+  final curriculum = ref.watch(curriculumProvider);
+
+  int completedTasks = 0;
+  for (final p in projects) {
+    completedTasks += p.completedTasksCount;
+  }
+
+  int completedCourses = 0;
+  for (final m in curriculum) {
+    if (m.progressPercentage >= 100.0) {
+      completedCourses++;
+    }
+  }
+
+  return UserXP.calculate(
+    completedLessons: stats.completedLessons,
+    completedProjects: stats.completedProjects,
+    completedTasks: completedTasks,
+    currentStreak: stats.currentStreak,
+    totalStudyMinutes: stats.totalStudyMinutes,
+    quizQuestionsCorrect: practiceStats.totalCorrectAnswers,
+    completedCourses: completedCourses,
+  );
+});
+
+// Deterministic Achievements Provider
+final achievementsProvider = Provider<List<Achievement>>((ref) {
+  final stats = ref.watch(appStatsProvider);
+  final practiceStats = ref.watch(practiceStatsProvider);
+  final practiceRepo = ref.watch(practiceRepositoryProvider);
+  final curriculum = ref.watch(curriculumProvider);
+
+  int completedCourses = 0;
+  for (final m in curriculum) {
+    if (m.progressPercentage >= 100.0) {
+      completedCourses++;
+    }
+  }
+
+  return AchievementEngine.evaluate(
+    completedLessons: stats.completedLessons,
+    completedProjects: stats.completedProjects,
+    completedCourses: completedCourses,
+    streakDays: stats.currentStreak > stats.longestStreak
+        ? stats.currentStreak
+        : stats.longestStreak,
+    totalStudyMinutes: stats.totalStudyMinutes,
+    totalQuizQuestionsAttempted: practiceStats.totalQuestionsAttempted,
+    highestQuizAccuracy: practiceRepo.getHighestAccuracy(),
   );
 });

@@ -71,7 +71,7 @@ class MoreScreen extends StatelessWidget {
                           color: AppColors.primary, size: 20),
                       SizedBox(width: 8),
                       Text(
-                        'DevPath • IT Career Roadmap',
+                        'SkillForge • Tech Skills Platform',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -82,7 +82,7 @@ class MoreScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    'Built for offline focus. Level up every day.',
+                    'Built for offline focus and practical skill mastery.',
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondaryDark,

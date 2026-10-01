@@ -21,6 +21,14 @@ class QuickStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final textPrimary =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final textSecondary =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+
     return Row(
       children: [
         Expanded(
@@ -29,7 +37,11 @@ class QuickStatsRow extends StatelessWidget {
             value: '${stats.currentStreak}d',
             icon: Icons.local_fire_department_rounded,
             iconColor: AppColors.accentOrange,
-            bgGlow: AppColors.accentOrange.withAlpha(20),
+            bgGlow: AppColors.accentOrange.withAlpha(25),
+            cardBg: cardBg,
+            borderColor: borderColor,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
           ),
         ),
         const SizedBox(width: AppDimensions.space8),
@@ -39,7 +51,11 @@ class QuickStatsRow extends StatelessWidget {
             value: _formatMinutes(stats.totalStudyMinutes),
             icon: Icons.hourglass_bottom_rounded,
             iconColor: AppColors.accentCyan,
-            bgGlow: AppColors.accentCyan.withAlpha(20),
+            bgGlow: AppColors.accentCyan.withAlpha(25),
+            cardBg: cardBg,
+            borderColor: borderColor,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
           ),
         ),
         const SizedBox(width: AppDimensions.space8),
@@ -49,7 +65,11 @@ class QuickStatsRow extends StatelessWidget {
             value: '${stats.completedLessons}',
             icon: Icons.task_alt_rounded,
             iconColor: AppColors.primary,
-            bgGlow: AppColors.primary.withAlpha(20),
+            bgGlow: AppColors.primary.withAlpha(25),
+            cardBg: cardBg,
+            borderColor: borderColor,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
           ),
         ),
       ],
@@ -62,6 +82,10 @@ class QuickStatsRow extends StatelessWidget {
     required IconData icon,
     required Color iconColor,
     required Color bgGlow,
+    required Color cardBg,
+    required Color borderColor,
+    required Color textPrimary,
+    required Color textSecondary,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -69,9 +93,9 @@ class QuickStatsRow extends StatelessWidget {
         vertical: AppDimensions.space14,
       ),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: cardBg,
         borderRadius: AppDimensions.radiusMd,
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,10 +116,10 @@ class QuickStatsRow extends StatelessWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondaryDark,
+                    color: textSecondary,
                   ),
                 ),
               ),
@@ -104,10 +128,10 @@ class QuickStatsRow extends StatelessWidget {
           const SizedBox(height: AppDimensions.space8),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimaryDark,
+              color: textPrimary,
               letterSpacing: -0.5,
             ),
           ),

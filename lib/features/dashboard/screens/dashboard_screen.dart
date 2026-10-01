@@ -9,6 +9,9 @@ import '../../common/widgets/course_card.dart';
 import '../../common/widgets/hero_continue_card.dart';
 import '../../common/widgets/section_header.dart';
 import '../widgets/greeting_header.dart';
+import '../widgets/quick_stats_row.dart';
+import '../widgets/todays_goal_card.dart';
+import '../widgets/todays_plan_card.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -19,6 +22,8 @@ class DashboardScreen extends ConsumerWidget {
     final focusLesson = ref.watch(currentFocusLessonProvider);
     final curriculum = ref.watch(curriculumProvider);
     final stats = ref.watch(appStatsProvider);
+    final todayStudyMinutes = ref.watch(todayStudyMinutesProvider);
+    final todaysPlan = ref.watch(todaysPlanProvider);
 
     // Find current active month
     Month? currentMonth;
@@ -68,9 +73,26 @@ class DashboardScreen extends ConsumerWidget {
                   currentMonth: currentMonth,
                   progress: currentMonth?.progressPercentage ?? stats.overallProgress,
                 ),
-                const SizedBox(height: AppDimensions.space20),
+                const SizedBox(height: AppDimensions.space16),
 
-                // 3. Quick Action Hub Pills
+                // 3. Progress Summary (Streak, Study Time, Completed Lessons)
+                QuickStatsRow(stats: stats),
+                const SizedBox(height: AppDimensions.space16),
+
+                // 4. Today's Goal Progress
+                TodaysGoalCard(
+                  todayMinutes: todayStudyMinutes,
+                  goalMinutes: user.dailyGoalMinutes,
+                ),
+                const SizedBox(height: AppDimensions.space16),
+
+                // 5. Today's Plan Checklist
+                if (todaysPlan.isNotEmpty) ...[
+                  TodaysPlanCard(plan: todaysPlan),
+                  const SizedBox(height: AppDimensions.space20),
+                ],
+
+                // 6. Quick Action Hub Pills
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -81,6 +103,17 @@ class DashboardScreen extends ConsumerWidget {
                         label: 'Practice Hub',
                         color: AppColors.primary,
                         route: '/practice',
+                        cardBg: cardBg,
+                        borderColor: borderColor,
+                        textPrimary: textPrimary,
+                      ),
+                      const SizedBox(width: 10),
+                      _buildQuickPill(
+                        context,
+                        icon: Icons.alt_route_rounded,
+                        label: 'Roadmap',
+                        color: AppColors.accentPurple,
+                        route: '/roadmap',
                         cardBg: cardBg,
                         borderColor: borderColor,
                         textPrimary: textPrimary,
@@ -123,7 +156,7 @@ class DashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppDimensions.space24),
 
-                // 4. "Your Learning Path" (6-Month Curriculum)
+                // 7. "Your Learning Path" (Curriculum Courses)
                 SectionHeader(
                   title: 'Your Learning Path',
                   subtitle: '6-Month professional journey from fundamentals to job readiness',

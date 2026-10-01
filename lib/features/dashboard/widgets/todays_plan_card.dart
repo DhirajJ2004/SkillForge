@@ -18,11 +18,22 @@ class TodaysPlanCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final allCompleted = plan.isEmpty || plan.every((l) => l.completed);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final surfaceBg = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final textPrimary =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final textSecondary =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final textTertiary =
+        isDark ? AppColors.textTertiaryDark : AppColors.textTertiaryLight;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: cardBg,
         borderRadius: AppDimensions.radiusLg,
-        border: Border.all(color: AppColors.darkBorder),
+        border: Border.all(color: borderColor),
       ),
       padding: const EdgeInsets.all(AppDimensions.space20),
       child: Column(
@@ -31,17 +42,17 @@ class TodaysPlanCard extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.today_rounded,
+                  const Icon(Icons.today_rounded,
                       color: AppColors.primaryLight, size: 20),
-                  SizedBox(width: AppDimensions.space8),
+                  const SizedBox(width: AppDimensions.space8),
                   Text(
                     'TODAY\'S PLAN',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimaryDark,
+                      color: textPrimary,
                       letterSpacing: 0.6,
                     ),
                   ),
@@ -71,14 +82,14 @@ class TodaysPlanCard extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(AppDimensions.space16),
               decoration: BoxDecoration(
-                color: AppColors.darkSurface,
+                color: surfaceBg,
                 borderRadius: AppDimensions.radiusMd,
                 border: Border.all(color: AppColors.primaryLight.withAlpha(60)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Text('🎉', style: TextStyle(fontSize: 24)),
-                  SizedBox(width: AppDimensions.space12),
+                  const Text('🎉', style: TextStyle(fontSize: 24)),
+                  const SizedBox(width: AppDimensions.space12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,15 +99,15 @@ class TodaysPlanCard extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimaryDark,
+                            color: textPrimary,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           'Great consistency! Keep up the momentum or explore additional topics.',
                           style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textSecondaryDark,
+                            color: textSecondary,
                           ),
                         ),
                       ],
@@ -111,7 +122,7 @@ class TodaysPlanCard extends ConsumerWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: plan.length,
               separatorBuilder: (context, index) =>
-                  const Divider(color: AppColors.darkBorderSubtle, height: 16),
+                  Divider(color: borderColor, height: 16),
               itemBuilder: (context, index) {
                 final lesson = plan[index];
                 return Row(
@@ -124,7 +135,7 @@ class TodaysPlanCard extends ConsumerWidget {
                             : Icons.radio_button_unchecked_rounded,
                         color: lesson.completed
                             ? AppColors.primary
-                            : AppColors.textTertiaryDark,
+                            : textTertiary,
                         size: 22,
                       ),
                       onPressed: () {
@@ -151,8 +162,8 @@ class TodaysPlanCard extends ConsumerWidget {
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: lesson.completed
-                                    ? AppColors.textTertiaryDark
-                                    : AppColors.textPrimaryDark,
+                                    ? textTertiary
+                                    : textPrimary,
                                 decoration: lesson.completed
                                     ? TextDecoration.lineThrough
                                     : null,
@@ -161,9 +172,9 @@ class TodaysPlanCard extends ConsumerWidget {
                             const SizedBox(height: 2),
                             Text(
                               '${lesson.estimatedMinutes} min',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.textTertiaryDark,
+                                color: textTertiary,
                               ),
                             ),
                           ],

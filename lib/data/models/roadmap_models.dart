@@ -99,6 +99,13 @@ class Resource {
   }
 }
 
+enum RoadmapNodeStatus {
+  locked,
+  available,
+  inProgress,
+  completed,
+}
+
 class Lesson {
   final String id;
   final String topicId;
@@ -109,6 +116,7 @@ class Lesson {
   final bool completed;
   final DateTime? completedAt;
   final List<Resource> resources;
+  final bool isBookmarked;
 
   const Lesson({
     required this.id,
@@ -120,6 +128,7 @@ class Lesson {
     this.completed = false,
     this.completedAt,
     this.resources = const [],
+    this.isBookmarked = false,
   });
 
   Lesson copyWith({
@@ -132,6 +141,7 @@ class Lesson {
     bool? completed,
     DateTime? completedAt,
     List<Resource>? resources,
+    bool? isBookmarked,
   }) {
     return Lesson(
       id: id ?? this.id,
@@ -143,6 +153,7 @@ class Lesson {
       completed: completed ?? this.completed,
       completedAt: completedAt ?? this.completedAt,
       resources: resources ?? this.resources,
+      isBookmarked: isBookmarked ?? this.isBookmarked,
     );
   }
 
@@ -157,6 +168,7 @@ class Lesson {
       'completed': completed,
       'completedAt': completedAt?.toIso8601String(),
       'resources': resources.map((r) => r.toJson()).toList(),
+      'isBookmarked': isBookmarked,
     };
   }
 
@@ -176,6 +188,7 @@ class Lesson {
               ?.map((r) => Resource.fromJson(r as Map<String, dynamic>))
               .toList() ??
           const [],
+      isBookmarked: json['isBookmarked'] as bool? ?? false,
     );
   }
 }
@@ -299,6 +312,8 @@ class Month {
 
   double get progressPercentage =>
       totalLessonsCount == 0 ? 0.0 : ((completedLessonsCount / totalLessonsCount) * 100).clamp(0.0, 100.0);
+
+  bool get isCompleted => totalLessonsCount > 0 && completedLessonsCount >= totalLessonsCount;
 
   Map<String, dynamic> toJson() {
     return {

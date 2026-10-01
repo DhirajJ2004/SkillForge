@@ -104,7 +104,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // DevPath Logo Tag
+                  // SkillForge Logo Tag
                   Row(
                     children: [
                       ClipRRect(
@@ -118,7 +118,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ),
                       const SizedBox(width: AppDimensions.space8),
                       const Text(
-                        'DevPath',
+                        'SkillForge',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,

@@ -10,7 +10,7 @@ class ProjectsSeed {
         description:
             'A CLI and SQLite-backed personal finance manager that tracks incomes and expenses, categorizes spending, and generates monthly summary analytics.',
         technologies: ['Python 3', 'SQLite3', 'Rich CLI', 'CSV Export'],
-        githubUrl: 'https://github.com/developer/python-expense-tracker',
+        githubUrl: '',
         liveUrl: '',
         notes:
             'Focus on robust input validation, clean modular functions, and relational database schema design.',
@@ -29,8 +29,8 @@ class ProjectsSeed {
         description:
             'Modern, responsive developer portfolio showcasing projects, interactive live demos, technical blog posts, and contact form with dark mode support.',
         technologies: ['React', 'TypeScript', 'Tailwind CSS', 'Vite', 'Framer Motion'],
-        githubUrl: 'https://github.com/developer/modern-portfolio',
-        liveUrl: 'https://developer-portfolio-demo.vercel.app',
+        githubUrl: '',
+        liveUrl: '',
         notes:
             'Prioritize Lighthouse score 95+, semantic HTML, smooth micro-interactions, and mobile responsiveness.',
         tasks: const [
@@ -49,8 +49,8 @@ class ProjectsSeed {
         description:
             'Real-time weather dashboard featuring 7-day forecasts, geolocation search, hourly temperature graphs, and weather alert notifications.',
         technologies: ['React', 'OpenWeatherMap API', 'Chart.js', 'Lucide Icons'],
-        githubUrl: 'https://github.com/developer/weather-forecast-app',
-        liveUrl: 'https://weather-forecast-app.vercel.app',
+        githubUrl: '',
+        liveUrl: '',
         notes:
             'Demonstrates asynchronous data fetching, error handling for invalid cities, debounced search, and browser location API.',
         tasks: const [
@@ -68,8 +68,8 @@ class ProjectsSeed {
         description:
             'End-to-end full-stack platform where employers post developer roles and candidates search, filter, and apply with uploaded resumes.',
         technologies: ['FastAPI', 'PostgreSQL', 'SQLAlchemy', 'React', 'JWT Auth'],
-        githubUrl: 'https://github.com/developer/job-portal-platform',
-        liveUrl: 'https://job-portal-api.onrender.com',
+        githubUrl: '',
+        liveUrl: '',
         notes:
             'Focuses on relational data modeling, role-based authorization (candidate vs recruiter), and pagination.',
         tasks: const [
@@ -88,8 +88,8 @@ class ProjectsSeed {
         description:
             'Retrieval Augmented Generation (RAG) platform that accepts research PDFs, extracts vectors into ChromaDB, and allows users to chat with documents with exact page citations.',
         technologies: ['FastAPI', 'LangChain', 'ChromaDB', 'OpenAI API', 'Streamlit / React'],
-        githubUrl: 'https://github.com/developer/ai-pdf-research-assistant',
-        liveUrl: 'https://ai-pdf-assistant-demo.streamlit.app',
+        githubUrl: '',
+        liveUrl: '',
         notes:
             'Master document chunking strategies, semantic similarity search, and source-grounded prompt engineering.',
         tasks: const [
@@ -110,7 +110,7 @@ class ProjectsSeed {
         description:
             'Autonomous market sentiment and financial news analysis agent system using tool calling, multi-container Docker Compose, and automated AWS EC2 deployment.',
         technologies: ['Python', 'Docker Compose', 'AWS EC2', 'FastAPI', 'Redis', 'Financial APIs'],
-        githubUrl: 'https://github.com/developer/ai-trading-research-platform',
+        githubUrl: '',
         liveUrl: '',
         notes:
             'Showcases production DevOps skills: multi-stage Docker builds, Nginx reverse proxy, CI/CD with GitHub Actions, and background celery/redis tasks.',

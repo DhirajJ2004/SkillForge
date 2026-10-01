@@ -45,6 +45,39 @@ class RoadmapRepository {
     await saveCurriculum(updatedCurriculum);
   }
 
+  Future<void> toggleLessonBookmark(String lessonId, bool isBookmarked) async {
+    final curriculum = getCurriculum();
+    final updatedCurriculum = curriculum.map((month) {
+      final updatedTopics = month.topics.map((topic) {
+        final updatedLessons = topic.lessons.map((lesson) {
+          if (lesson.id == lessonId) {
+            return lesson.copyWith(isBookmarked: isBookmarked);
+          }
+          return lesson;
+        }).toList();
+        return topic.copyWith(lessons: updatedLessons);
+      }).toList();
+      return month.copyWith(topics: updatedTopics);
+    }).toList();
+
+    await saveCurriculum(updatedCurriculum);
+  }
+
+  List<Lesson> getBookmarkedLessons() {
+    final curriculum = getCurriculum();
+    final List<Lesson> bookmarks = [];
+    for (final month in curriculum) {
+      for (final topic in month.topics) {
+        for (final lesson in topic.lessons) {
+          if (lesson.isBookmarked) {
+            bookmarks.add(lesson);
+          }
+        }
+      }
+    }
+    return bookmarks;
+  }
+
   Future<void> markResourceOpened(String lessonId, String resourceId) async {
     final curriculum = getCurriculum();
     final updatedCurriculum = curriculum.map((month) {

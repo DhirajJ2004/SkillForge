@@ -292,10 +292,150 @@ class ProgressScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: AppDimensions.space20),
-
               // GitHub-Style Learning Activity Calendar
               ActivityCalendar(activityMap: activityMap),
+              const SizedBox(height: AppDimensions.space24),
+
+              // XP & Engineering Rank Card
+              SectionHeader(
+                title: 'SkillForge Experience (XP)',
+                subtitle: 'Level up by completing lessons, projects, and drills',
+              ),
+              const SizedBox(height: AppDimensions.space8),
+              Container(
+                padding: const EdgeInsets.all(AppDimensions.space16),
+                decoration: BoxDecoration(
+                  color: cardBg,
+                  borderRadius: AppDimensions.radiusLg,
+                  border: Border.all(color: borderColor),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: AppColors.accentAmber.withAlpha(25),
+                                borderRadius: AppDimensions.radiusSm,
+                              ),
+                              child: const Icon(
+                                Icons.bolt_rounded,
+                                size: 18,
+                                color: AppColors.accentAmber,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Level ${ref.watch(userXPProvider).currentLevel} • ${ref.watch(userXPProvider).levelTitle}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    color: textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  '${ref.watch(userXPProvider).totalXP} Total XP Earned',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '${(ref.watch(userXPProvider).levelProgress * 100).toInt()}%',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.accentAmber,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ClipRRect(
+                      borderRadius: AppDimensions.radiusPill,
+                      child: LinearProgressIndicator(
+                        value: ref.watch(userXPProvider).levelProgress,
+                        minHeight: 8,
+                        backgroundColor: isDark
+                            ? AppColors.darkBorder
+                            : AppColors.lightBorder,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          AppColors.accentAmber,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${ref.watch(userXPProvider).xpIntoCurrentLevel} / ${ref.watch(userXPProvider).xpRequiredForNextLevel} XP to Level ${ref.watch(userXPProvider).currentLevel + 1}',
+                      style: TextStyle(fontSize: 11, color: textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppDimensions.space24),
+
+              // Practice Assessment Stats
+              SectionHeader(
+                title: 'Practice & Quizzes',
+                subtitle: 'Accuracy and weak area identification from drills',
+              ),
+              const SizedBox(height: AppDimensions.space8),
+              Container(
+                padding: const EdgeInsets.all(AppDimensions.space16),
+                decoration: BoxDecoration(
+                  color: cardBg,
+                  borderRadius: AppDimensions.radiusLg,
+                  border: Border.all(color: borderColor),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildPracticeStat(
+                      'Completed',
+                      '${ref.watch(practiceStatsProvider).totalExercisesCompleted}',
+                      AppColors.primary,
+                      textPrimary,
+                      textSecondary,
+                    ),
+                    Container(width: 1, height: 32, color: borderColor),
+                    _buildPracticeStat(
+                      'Questions',
+                      '${ref.watch(practiceStatsProvider).totalQuestionsAttempted}',
+                      AppColors.secondary,
+                      textPrimary,
+                      textSecondary,
+                    ),
+                    Container(width: 1, height: 32, color: borderColor),
+                    _buildPracticeStat(
+                      'Accuracy',
+                      '${ref.watch(practiceStatsProvider).overallAccuracy.toStringAsFixed(0)}%',
+                      AppColors.success,
+                      textPrimary,
+                      textSecondary,
+                    ),
+                    Container(width: 1, height: 32, color: borderColor),
+                    _buildPracticeStat(
+                      'Weak Area',
+                      ref.watch(practiceStatsProvider).weakTopic,
+                      AppColors.accentOrange,
+                      textPrimary,
+                      textSecondary,
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: AppDimensions.space24),
 
               // Career Readiness Section
@@ -555,4 +695,34 @@ class ProgressScreen extends ConsumerWidget {
       ],
     );
   }
+
+  Widget _buildPracticeStat(
+    String label,
+    String value,
+    Color valueColor,
+    Color textPrimary,
+    Color textSecondary,
+  ) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: valueColor,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
 }
+

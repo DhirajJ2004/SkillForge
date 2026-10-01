@@ -34,15 +34,24 @@ class _MonthAccordionState extends State<MonthAccordion> {
     final progress = month.progressPercentage;
     final isDone = progress >= 100.0;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppColors.darkCard : AppColors.lightCard;
+    final surfaceBg = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
+    final textPrimary =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final textSecondary =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppDimensions.space16),
       decoration: BoxDecoration(
-        color: AppColors.darkCard,
+        color: cardBg,
         borderRadius: AppDimensions.radiusLg,
         border: Border.all(
           color: isDone
               ? AppColors.primary.withAlpha(80)
-              : AppColors.darkBorder,
+              : borderColor,
         ),
       ),
       child: Column(
@@ -67,23 +76,23 @@ class _MonthAccordionState extends State<MonthAccordion> {
                         decoration: BoxDecoration(
                           color: isDone
                               ? AppColors.primary
-                              : AppColors.darkSurface,
+                              : surfaceBg,
                           borderRadius: AppDimensions.radiusSm,
                           border: Border.all(
                             color: isDone
                                 ? AppColors.primary
-                                : AppColors.darkBorder,
+                                : borderColor,
                           ),
                         ),
                         child: Text(
-                          'MONTH ${month.monthNumber}',
+                          'STAGE ${month.monthNumber}',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.5,
                             color: isDone
-                                ? Colors.black
-                                : AppColors.primaryLight,
+                                ? Colors.white
+                                : AppColors.primary,
                           ),
                         ),
                       ),
@@ -91,10 +100,10 @@ class _MonthAccordionState extends State<MonthAccordion> {
                       Expanded(
                         child: Text(
                           month.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimaryDark,
+                            color: textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -103,17 +112,17 @@ class _MonthAccordionState extends State<MonthAccordion> {
                         _expanded
                             ? Icons.keyboard_arrow_up_rounded
                             : Icons.keyboard_arrow_down_rounded,
-                        color: AppColors.textSecondaryDark,
+                        color: textSecondary,
                       ),
                     ],
                   ),
                   const SizedBox(height: AppDimensions.space6),
                   Text(
                     month.subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textSecondaryDark,
+                      color: textSecondary,
                     ),
                   ),
                   const SizedBox(height: AppDimensions.space12),
@@ -136,7 +145,7 @@ class _MonthAccordionState extends State<MonthAccordion> {
                           fontWeight: FontWeight.w700,
                           color: isDone
                               ? AppColors.primary
-                              : AppColors.textSecondaryDark,
+                              : textSecondary,
                         ),
                       ),
                     ],

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_dimensions.dart';
+import '../../../data/models/practice_model.dart';
+import '../../../providers/app_providers.dart';
 import '../../common/widgets/section_header.dart';
 
 class PracticeQuizItem {
@@ -41,18 +44,15 @@ class PracticeModule {
   });
 }
 
-class PracticeScreen extends StatefulWidget {
+class PracticeScreen extends ConsumerStatefulWidget {
   const PracticeScreen({super.key});
 
   @override
-  State<PracticeScreen> createState() => _PracticeScreenState();
+  ConsumerState<PracticeScreen> createState() => _PracticeScreenState();
 }
 
-class _PracticeScreenState extends State<PracticeScreen> {
+class _PracticeScreenState extends ConsumerState<PracticeScreen> {
   String _selectedCategory = 'All';
-  int _completedExercises = 14;
-  int _totalAttempted = 16;
-  int _accuracyRate = 88;
 
   final List<String> _categories = const [
     'All',
@@ -260,12 +260,20 @@ class _PracticeScreenState extends State<PracticeScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => _PracticeQuizSheet(
         module: module,
-        onFinish: (score, total) {
-          setState(() {
-            _completedExercises += 1;
-            _totalAttempted += 1;
-            _accuracyRate = ((_accuracyRate * 4 + (score / total * 100)) / 5).toInt();
-          });
+        onFinish: (score, total) async {
+          final attempt = PracticeAttempt(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            moduleId: module.id,
+            moduleTitle: module.title,
+            category: module.category,
+            difficulty: module.difficulty,
+            score: score,
+            totalQuestions: total,
+            accuracy: total > 0 ? (score / total) * 100 : 0.0,
+            completedAt: DateTime.now(),
+            durationSeconds: module.estimatedMinutes * 60,
+          );
+          await ref.read(practiceAttemptsProvider.notifier).recordAttempt(attempt);
         },
       ),
     );
@@ -273,6 +281,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final stats = ref.watch(practiceStatsProvider);
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppColors.darkBackground : AppColors.lightBackground;
     final cardBg = isDark ? AppColors.darkCard : AppColors.lightCard;
@@ -289,7 +299,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     return Scaffold(
       backgroundColor: bg,
       appBar: AppBar(
-        title: const Text('Practice Hub'),
+        title: const Text('SkillForge Practice Hub'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -331,16 +341,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStatCol('Completed', '$_completedExercises',
+                    _buildStatCol('Completed', '${stats.totalExercisesCompleted}',
                         AppColors.primary, textPrimary, textSecondary),
                     Container(width: 1, height: 32, color: borderColor),
-                    _buildStatCol('Attempted', '$_totalAttempted',
+                    _buildStatCol('Questions', '${stats.totalQuestionsAttempted}',
                         AppColors.secondary, textPrimary, textSecondary),
                     Container(width: 1, height: 32, color: borderColor),
-                    _buildStatCol('Accuracy', '$_accuracyRate%',
+                    _buildStatCol('Accuracy', '${stats.overallAccuracy.toStringAsFixed(0)}%',
                         AppColors.success, textPrimary, textSecondary),
                     Container(width: 1, height: 32, color: borderColor),
-                    _buildStatCol('Weak Area', 'DSA Sliders',
+                    _buildStatCol('Weak Area', stats.weakTopic,
                         AppColors.accentOrange, textPrimary, textSecondary),
                   ],
                 ),
@@ -478,6 +488,77 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   ),
                 );
               }),
+
+              // Recent Attempts Section
+              if (stats.recentAttempts.isNotEmpty) ...[
+                const SizedBox(height: AppDimensions.space20),
+                SectionHeader(
+                  title: 'Recent Sessions',
+                  subtitle: 'History of your latest practice attempts',
+                ),
+                const SizedBox(height: AppDimensions.space8),
+                ...stats.recentAttempts.take(5).map((attempt) {
+                  final isPassing = attempt.accuracy >= 70;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: AppDimensions.space10),
+                    padding: const EdgeInsets.all(AppDimensions.space12),
+                    decoration: BoxDecoration(
+                      color: cardBg,
+                      borderRadius: AppDimensions.radiusSm,
+                      border: Border.all(color: borderColor),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                attempt.moduleTitle,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${attempt.category} • ${attempt.difficulty}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isPassing
+                                ? AppColors.success.withAlpha(20)
+                                : AppColors.accentOrange.withAlpha(20),
+                            borderRadius: AppDimensions.radiusPill,
+                          ),
+                          child: Text(
+                            '${attempt.score}/${attempt.totalQuestions} (${attempt.accuracy.toStringAsFixed(0)}%)',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: isPassing
+                                  ? AppColors.success
+                                  : AppColors.accentOrange,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+
               const SizedBox(height: AppDimensions.space32),
             ],
           ),

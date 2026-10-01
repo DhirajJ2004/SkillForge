@@ -6,72 +6,8 @@ import '../../../core/constants/app_dimensions.dart';
 import '../../../providers/app_providers.dart';
 import '../../common/widgets/section_header.dart';
 
-class AchievementBadge {
-  final String title;
-  final String description;
-  final IconData icon;
-  final Color color;
-  final bool unlocked;
-
-  const AchievementBadge({
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.color,
-    required this.unlocked,
-  });
-}
-
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
-
-  List<AchievementBadge> _getAchievements(
-      int completedLessons, int streak, int completedProjects) {
-    return [
-      AchievementBadge(
-        title: 'First Lesson',
-        description: 'Completed your first study topic',
-        icon: Icons.emoji_events_rounded,
-        color: AppColors.primary,
-        unlocked: completedLessons >= 1,
-      ),
-      AchievementBadge(
-        title: '7-Day Streak',
-        description: 'Studied consistently for 7 days',
-        icon: Icons.local_fire_department_rounded,
-        color: AppColors.accentOrange,
-        unlocked: streak >= 7,
-      ),
-      AchievementBadge(
-        title: 'First Project',
-        description: 'Shipped a real portfolio application',
-        icon: Icons.rocket_launch_rounded,
-        color: AppColors.accentCyan,
-        unlocked: completedProjects >= 1,
-      ),
-      AchievementBadge(
-        title: 'Python Completed',
-        description: 'Finished all Month 1 fundamentals',
-        icon: Icons.code_rounded,
-        color: AppColors.secondary,
-        unlocked: completedLessons >= 25,
-      ),
-      AchievementBadge(
-        title: 'First Portfolio',
-        description: 'Built personal developer website',
-        icon: Icons.laptop_chromebook_rounded,
-        color: AppColors.accentEmerald,
-        unlocked: completedProjects >= 2,
-      ),
-      AchievementBadge(
-        title: '100 Lessons',
-        description: 'Century milestone of knowledge',
-        icon: Icons.military_tech_rounded,
-        color: AppColors.accentAmber,
-        unlocked: completedLessons >= 100,
-      ),
-    ];
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -80,12 +16,8 @@ class ProfileScreen extends ConsumerWidget {
     final streak = stats.currentStreak;
     final projects = ref.watch(projectsProvider);
     final completedProjects = projects.where((p) => p.isCompleted).length;
-
-    final achievements = _getAchievements(
-      stats.completedLessons,
-      streak,
-      completedProjects,
-    );
+    final userXP = ref.watch(userXPProvider);
+    final achievements = ref.watch(achievementsProvider);
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppColors.darkBackground : AppColors.lightBackground;
@@ -112,7 +44,7 @@ class ProfileScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'My Profile',
+                    'SkillForge Profile',
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
@@ -171,7 +103,7 @@ class ProfileScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            user.name.isNotEmpty ? user.name : 'Learner',
+                            user.name.isNotEmpty ? user.name : 'SkillForge Learner',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -180,10 +112,11 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Full Stack Software Aspirant',
-                            style: TextStyle(
+                            'Level ${userXP.currentLevel} • ${userXP.levelTitle}',
+                            style: const TextStyle(
                               fontSize: 12,
-                              color: textSecondary,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primary,
                             ),
                           ),
                           const SizedBox(height: 6),
@@ -193,7 +126,7 @@ class ProfileScreen extends ConsumerWidget {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withAlpha(25),
+                              color: AppColors.accentOrange.withAlpha(20),
                               borderRadius: AppDimensions.radiusPill,
                             ),
                             child: Row(
@@ -210,13 +143,82 @@ class ProfileScreen extends ConsumerWidget {
                                   style: const TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.primary,
+                                    color: AppColors.accentOrange,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppDimensions.space16),
+
+              // XP Progress Card
+              Container(
+                padding: const EdgeInsets.all(AppDimensions.space16),
+                decoration: BoxDecoration(
+                  color: cardBg,
+                  borderRadius: AppDimensions.radiusMd,
+                  border: Border.all(color: borderColor),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.bolt_rounded,
+                              color: AppColors.accentAmber,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'XP & Rank Progression',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '${userXP.totalXP} Total XP',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.accentAmber,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    ClipRRect(
+                      borderRadius: AppDimensions.radiusPill,
+                      child: LinearProgressIndicator(
+                        value: userXP.levelProgress.clamp(0.0, 1.0),
+                        minHeight: 8,
+                        backgroundColor: isDark
+                            ? AppColors.darkBorder
+                            : AppColors.lightBorder,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          AppColors.accentAmber,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${userXP.xpIntoCurrentLevel} / ${userXP.xpRequiredForNextLevel} XP to Level ${userXP.currentLevel + 1}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: textSecondary,
                       ),
                     ),
                   ],
@@ -274,6 +276,18 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppDimensions.space8),
               _buildHubTile(
                 context,
+                icon: Icons.alt_route_rounded,
+                title: 'SkillForge Career Roadmap',
+                subtitle: '6-stage interactive path from foundations to production',
+                route: '/roadmap',
+                color: AppColors.accentPurple,
+                cardBg: cardBg,
+                borderColor: borderColor,
+                textPrimary: textPrimary,
+                textSecondary: textSecondary,
+              ),
+              _buildHubTile(
+                context,
                 icon: Icons.quiz_outlined,
                 title: 'Practice Hub',
                 subtitle: 'Daily technical drills & interactive quizzes',
@@ -320,24 +334,12 @@ class ProfileScreen extends ConsumerWidget {
                 textPrimary: textPrimary,
                 textSecondary: textSecondary,
               ),
-              _buildHubTile(
-                context,
-                icon: Icons.auto_stories_outlined,
-                title: 'Curated Resources',
-                subtitle: 'Documentation, cheat sheets & courses',
-                route: '/resources',
-                color: AppColors.accentEmerald,
-                cardBg: cardBg,
-                borderColor: borderColor,
-                textPrimary: textPrimary,
-                textSecondary: textSecondary,
-              ),
               const SizedBox(height: AppDimensions.space24),
 
               // Professional Achievements
               SectionHeader(
-                title: 'Achievements',
-                subtitle: 'Milestones earned through consistent study',
+                title: 'Achievements (${achievements.where((a) => a.unlocked).length}/${achievements.length})',
+                subtitle: 'Milestones evaluated deterministically through your real activity',
               ),
               const SizedBox(height: AppDimensions.space8),
               GridView.builder(
@@ -392,6 +394,15 @@ class ProfileScreen extends ConsumerWidget {
                                 Icons.check_circle_rounded,
                                 size: 14,
                                 color: AppColors.success,
+                              )
+                            else
+                              Text(
+                                '+${badge.xpReward} XP',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey,
+                                ),
                               ),
                           ],
                         ),
@@ -443,7 +454,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                   ),
                   subtitle: Text(
-                    'Theme mode, study reminders, JSON backup & restore',
+                    'Theme mode, study reminders, JSON backup & reset progress',
                     style: TextStyle(fontSize: 12, color: textSecondary),
                   ),
                   trailing: const Icon(Icons.chevron_right_rounded),

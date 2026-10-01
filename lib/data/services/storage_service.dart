@@ -6,6 +6,7 @@ import '../models/roadmap_models.dart';
 import '../models/study_session.dart';
 import '../models/project_model.dart';
 import '../models/note_model.dart';
+import '../models/practice_model.dart';
 import '../seeds/curriculum_seed.dart';
 import '../seeds/projects_seed.dart';
 
@@ -16,6 +17,7 @@ class StorageService {
   static const String _keyProjects = 'devpath_projects';
   static const String _keyNotes = 'devpath_notes';
   static const String _keyThemeMode = 'devpath_theme_mode';
+  static const String _keyPracticeAttempts = 'devpath_practice_attempts';
 
   final SharedPreferences _prefs;
 
@@ -146,6 +148,32 @@ class StorageService {
     await _prefs.setString(_keyNotes, jsonEncode(list));
   }
 
+  // --- Practice / Quiz Attempts ---
+  List<PracticeAttempt> getPracticeAttempts() {
+    final raw = _prefs.getString(_keyPracticeAttempts);
+    if (raw == null) return [];
+    try {
+      final list = jsonDecode(raw) as List<dynamic>;
+      return list
+          .map((e) => PracticeAttempt.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('Error parsing practice attempts: $e');
+      return [];
+    }
+  }
+
+  Future<void> savePracticeAttempts(List<PracticeAttempt> attempts) async {
+    final list = attempts.map((a) => a.toJson()).toList();
+    await _prefs.setString(_keyPracticeAttempts, jsonEncode(list));
+  }
+
+  Future<void> addPracticeAttempt(PracticeAttempt attempt) async {
+    final attempts = getPracticeAttempts();
+    attempts.insert(0, attempt);
+    await savePracticeAttempts(attempts);
+  }
+
   // --- Theme Mode ---
   String getThemeMode() {
     return _prefs.getString(_keyThemeMode) ?? 'dark';
@@ -165,6 +193,7 @@ class StorageService {
       'studySessions': getStudySessions().map((s) => s.toJson()).toList(),
       'projects': getProjects().map((p) => p.toJson()).toList(),
       'notes': getNotes().map((n) => n.toJson()).toList(),
+      'practiceAttempts': getPracticeAttempts().map((a) => a.toJson()).toList(),
       'themeMode': getThemeMode(),
     };
     return const JsonEncoder.withIndent('  ').convert(data);
@@ -184,6 +213,7 @@ class StorageService {
       List<StudySession>? parsedSessions;
       List<Project>? parsedProjects;
       List<Note>? parsedNotes;
+      List<PracticeAttempt>? parsedAttempts;
       String? parsedTheme;
 
       if (data['profile'] != null) {
@@ -209,6 +239,11 @@ class StorageService {
             .map((e) => Note.fromJson(e as Map<String, dynamic>))
             .toList();
       }
+      if (data['practiceAttempts'] != null) {
+        parsedAttempts = (data['practiceAttempts'] as List<dynamic>)
+            .map((e) => PracticeAttempt.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
       if (data['themeMode'] != null && data['themeMode'] is String) {
         parsedTheme = data['themeMode'] as String;
       }
@@ -218,7 +253,8 @@ class StorageService {
           parsedCurriculum == null &&
           parsedSessions == null &&
           parsedProjects == null &&
-          parsedNotes == null) {
+          parsedNotes == null &&
+          parsedAttempts == null) {
         return false;
       }
 
@@ -228,6 +264,7 @@ class StorageService {
       if (parsedSessions != null) await saveStudySessions(parsedSessions);
       if (parsedProjects != null) await saveProjects(parsedProjects);
       if (parsedNotes != null) await saveNotes(parsedNotes);
+      if (parsedAttempts != null) await savePracticeAttempts(parsedAttempts);
       if (parsedTheme != null) await saveThemeMode(parsedTheme);
 
       return true;
@@ -252,6 +289,9 @@ class StorageService {
 
     // Clear notes
     await saveNotes([]);
+
+    // Clear practice attempts
+    await savePracticeAttempts([]);
 
     // Reset profile progress dates while keeping user preferences
     final profile = getProfile();

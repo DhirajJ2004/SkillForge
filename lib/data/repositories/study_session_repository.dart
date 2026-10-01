@@ -17,6 +17,15 @@ class StudySessionRepository {
     return sessions.fold(0, (sum, s) => sum + s.durationMinutes);
   }
 
+  int getTodayStudyMinutes() {
+    final sessions = getSessions();
+    final now = DateTime.now();
+    final startOfToday = DateTime(now.year, now.month, now.day);
+    return sessions
+        .where((s) => !s.startTime.isBefore(startOfToday))
+        .fold(0, (sum, s) => sum + s.durationMinutes);
+  }
+
   int getWeeklyStudyMinutes() {
     final sessions = getSessions();
     final now = DateTime.now();

@@ -32,13 +32,13 @@ Future<void> main() async {
       overrides: [
         storageServiceProvider.overrideWithValue(storageService),
       ],
-      child: const DevPathApp(),
+      child: const SkillForgeApp(),
     ),
   );
 }
 
-class DevPathApp extends ConsumerWidget {
-  const DevPathApp({super.key});
+class SkillForgeApp extends ConsumerWidget {
+  const SkillForgeApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,7 +46,7 @@ class DevPathApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
-      title: 'DevPath — IT Career Roadmap',
+      title: 'SkillForge — Master Practical Tech Skills',
       debugShowCheckedModeBanner: false,
       themeMode: themeMode,
       theme: AppTheme.lightTheme,
@@ -55,3 +55,6 @@ class DevPathApp extends ConsumerWidget {
     );
   }
 }
+
+/// Backward compatibility alias for legacy tests and references
+typedef DevPathApp = SkillForgeApp;

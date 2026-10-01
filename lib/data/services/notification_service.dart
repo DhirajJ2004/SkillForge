@@ -9,10 +9,10 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  static const String channelId = 'devpath_study_reminders';
-  static const String channelName = 'DevPath Study Reminders';
+  static const String channelId = 'skillforge_study_reminders';
+  static const String channelName = 'SkillForge Study Reminders';
   static const String channelDescription =
-      'High priority notifications to keep you consistent on your developer career path';
+      'Timely notifications to keep you consistent on your learning path';
 
   bool _initialized = false;
 
@@ -88,6 +88,30 @@ class NotificationService {
     try {
       // Cancel existing study reminders
       await cancelAllStudyReminders();
+
+      const AndroidNotificationDetails androidDetails =
+          AndroidNotificationDetails(
+        channelId,
+        channelName,
+        channelDescription: channelDescription,
+        importance: Importance.high,
+        priority: Priority.high,
+      );
+
+      final bodyText = currentFocusTitle != null && currentFocusTitle.isNotEmpty
+          ? 'Continue: $currentFocusTitle. Keep your streak alive!'
+          : 'Complete today\'s learning goal and level up your skills!';
+
+      await _notificationsPlugin.periodicallyShow(
+        id: 1001,
+        title: '🔥 SkillForge Learning Reminder',
+        body: bodyText,
+        repeatInterval: RepeatInterval.daily,
+        notificationDetails:
+            const NotificationDetails(android: androidDetails),
+        androidScheduleMode: AndroidScheduleMode.inexact,
+        payload: 'study_session',
+      );
 
       debugPrint(
           'Scheduled study reminder for $hour:${minute.toString().padLeft(2, '0')} on days: $studyDays');

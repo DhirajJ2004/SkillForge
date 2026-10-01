@@ -282,7 +282,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppDimensions.space20),
 
-            // About DevPath
+            // About SkillForge
             _buildSectionHeader('About'),
             _buildCard(
               children: [
@@ -520,7 +520,7 @@ class SettingsScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Paste your exported DevPath JSON data below. This will replace current local progress.',
+                'Paste your exported SkillForge JSON data below. This will replace current local progress.',
                 style: TextStyle(
                     fontSize: 13, color: AppColors.textSecondaryDark),
               ),

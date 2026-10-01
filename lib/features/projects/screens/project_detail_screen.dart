@@ -285,7 +285,7 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                       style: const TextStyle(
                           color: AppColors.textPrimaryDark, fontSize: 13),
                       decoration: const InputDecoration(
-                        hintText: 'https://github.com/your-username/project',
+                        hintText: 'https://github.com/username/project',
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -303,7 +303,7 @@ class _ProjectDetailScreenState extends ConsumerState<ProjectDetailScreen> {
                       style: const TextStyle(
                           color: AppColors.textPrimaryDark, fontSize: 13),
                       decoration: const InputDecoration(
-                        hintText: 'https://your-project.vercel.app',
+                        hintText: 'https://project-demo.web.app',
                       ),
                     ),
                     const SizedBox(height: 12),

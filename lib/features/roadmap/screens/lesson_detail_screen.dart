@@ -179,6 +179,20 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
         ),
         actions: [
           IconButton(
+            icon: Icon(
+              lesson.isBookmarked
+                  ? Icons.bookmark_rounded
+                  : Icons.bookmark_border_rounded,
+              color: lesson.isBookmarked ? AppColors.accentAmber : null,
+            ),
+            tooltip: lesson.isBookmarked ? 'Remove bookmark' : 'Bookmark lesson',
+            onPressed: () {
+              ref
+                  .read(curriculumProvider.notifier)
+                  .toggleBookmark(lesson.id, !lesson.isBookmarked);
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.format_list_bulleted_rounded),
             tooltip: 'Course Outline',
             onPressed: () => _showCourseOutline(context, month, lesson),
